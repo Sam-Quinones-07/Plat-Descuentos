@@ -1,0 +1,40 @@
+name: promou-r1          # proyecto separado: no comparte base de datos con la versión completa
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: promou
+      POSTGRES_USER: promou
+      POSTGRES_PASSWORD: promou
+    volumes:
+      - promou-r1-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U promou -d promou"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: dev            # administrador de prueba (admin@plataforma.com / Descuentos@04)
+      DB_URL: jdbc:postgresql://db:5432/promou
+      DB_USER: promou
+      DB_PASSWORD: promou
+      CORS_ORIGENES: http://localhost:8443
+    ports:
+      - "8080:8080"                           # opcional: para probar la API directamente
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "8443:80"
+
+volumes:
+  promou-r1-data:

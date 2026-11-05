@@ -1,0 +1,36 @@
+# Blueprint de Render: API Spring Boot (Docker) + PostgreSQL.
+# En Render: New > Blueprint > elegir este repositorio. Pedirá los valores marcados con sync: false.
+databases:
+  - name: promou-db
+    plan: free
+    databaseName: promou
+    user: promou
+    region: oregon
+
+services:
+  - type: web
+    name: promou-backend
+    runtime: docker
+    plan: free
+    region: oregon
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DB_HOST
+        fromDatabase: { name: promou-db, property: host }
+      - key: DB_PORT
+        fromDatabase: { name: promou-db, property: port }
+      - key: DB_NAME
+        fromDatabase: { name: promou-db, property: database }
+      - key: DB_USER
+        fromDatabase: { name: promou-db, property: user }
+      - key: DB_PASSWORD
+        fromDatabase: { name: promou-db, property: password }
+      # Contraseña del administrador inicial (8+ caracteres, mayúscula, minúscula, número y carácter especial)
+      - key: ADMIN_CONTRASENA
+        sync: false
+      # URL del frontend en Vercel; admite patrones, p. ej. https://promou*.vercel.app
+      - key: CORS_ORIGENES
+        sync: false
+      - key: JAVA_TOOL_OPTIONS
+        value: -XX:MaxRAMPercentage=75 -XX:+UseSerialGC

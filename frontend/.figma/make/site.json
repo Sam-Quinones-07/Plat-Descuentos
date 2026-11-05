@@ -1,0 +1,12 @@
+{
+  "title": "PromoU · Descuentos para estudiantes",
+  "description": "PromoU: descuentos exclusivos para estudiantes universitarios en comercios aliados.",
+  "language": "es",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

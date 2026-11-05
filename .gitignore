@@ -1,0 +1,14 @@
+# Dependencias y compilados
+node_modules/
+dist/
+target/
+
+# Secretos y configuración local
+.env
+.env.*
+!.env.example
+.claude/
+.vscode/
+.idea/
+*.iml
+*.log

@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: promou-backend
+  datasource:
+    # Local: DB_URL o los valores por defecto. Render: DB_HOST, DB_PORT y DB_NAME (render.yaml).
+    url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:promou}}
+    username: ${DB_USER:promou}
+    password: ${DB_PASSWORD:promou}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate          # el esquema lo gestiona Flyway
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+  # Correo (HU 1.2.3 esc. 6). Sin SMTP_HOST se usa el adaptador de consola: el aviso queda en el log.
+  mail:
+    host: ${SMTP_HOST:}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USER:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+server:
+  port: ${PORT:8080}
+  error:
+    include-message: never
+    include-stacktrace: never
+
+promou:
+  cors:
+    origenes: ${CORS_ORIGENES:http://localhost:8443,http://localhost:5173}
+  admin:
+    correo: ${ADMIN_CORREO:admin@plataforma.com}
+    contrasena: ${ADMIN_CONTRASENA:}                    # obligatoria para sembrar el administrador
+    nombre: Administrador
+  notificaciones:
+    remitente: ${CORREO_REMITENTE:PromoU <no-reply@promou.app>}
+  seguridad:
+    dominios-institucionales: >
+      udea.edu.co,unal.edu.co,eafit.edu.co,upb.edu.co,udem.edu.co,itm.edu.co,
+      colmayor.edu.co,ces.edu.co,javeriana.edu.co,uniandes.edu.co
+    inactividad-sesion: 30m
+    max-intentos-fallidos: 5
+    ventana-intentos: 15m
+    duracion-bloqueo: 15m
+    vigencia-credencial: 365d
