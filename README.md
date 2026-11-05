@@ -10,23 +10,6 @@ promou-release1/
 └── docker-compose.yml  db + backend + frontend
 ```
 
-## Cómo correrlo en local (sin Docker)
-
-Requisitos: JDK 21, Node.js 20+, PostgreSQL 16 y Maven (o `backend/run-local.cmd`, que lo busca en `%USERPROFILE%\tools`).
-
-1. Base de datos (una sola vez), con `psql -U postgres`:
-   ```sql
-   CREATE ROLE promou LOGIN PASSWORD 'promou';
-   CREATE DATABASE promou OWNER promou;
-   ```
-2. Backend (puerto 8080, perfil `dev`): `backend\run-local.cmd`
-   (equivale a `mvn spring-boot:run -Dspring-boot.run.profiles=dev`). Flyway crea las tablas al arrancar.
-3. Frontend (puerto 8443): `cd frontend` → `npm install` → `npm run dev`. Vite reenvía `/api` al backend.
-4. Abre http://localhost:8443. Administrador: `admin@plataforma.com` / `Descuentos@04`.
-
-Correo (HU 1.2.3 esc. 6): sin `SMTP_HOST` el aviso al representante se escribe en el log del backend
-("Notificación simulada"). Con `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` y `CORREO_REMITENTE` se envía por SMTP.
-
 ## Despliegue (producción)
 
 | Parte | Plataforma | URL |
@@ -39,18 +22,6 @@ Correo (HU 1.2.3 esc. 6): sin `SMTP_HOST` el aviso al representante se escribe e
 - Cada push a `main` redespliega ambos automáticamente.
 - Plan gratuito de Render: el backend se suspende tras 15 min sin uso (la primera petición tarda ~50 s) y la base gratuita vence a los 30 días.
 
-## Cómo correrlo con Docker
-
-Con Docker Desktop abierto, desde esta carpeta:
-
-```bash
-docker compose up --build        # la primera vez tarda (descarga dependencias)
-```
-
-- App: http://localhost:8443  ·  API directa: http://localhost:8080
-- Administrador: `admin@plataforma.com` / `Descuentos@04`
-- Si tienes la versión completa corriendo, detenla antes (`docker compose down`): usan los mismos puertos.
-- Empezar de cero (borra la base): `docker compose down -v`
 
 ### Recorrido de prueba
 
@@ -96,23 +67,6 @@ de inactividad). Cinco fallos de login en 15 min bloquean la cuenta 15 min. Erro
 | State | `EstadoSolicitud` (pendiente / aprobada / rechazada): transiciones y acceso al login | 1.2.3, 1.2.4 |
 | Observer | `EstudianteVerificado` → `CredencialService` emite la identificación; `SolicitudRevisada` → `NotificacionAfiliacionListener` (después del commit) | 1.1.1 → 1.4.1, 1.2.3 |
 | Antipatrones evitados | God class (servicios separados), Tight coupling (interfaces de repositorio), condicionales (State en vez de `if/switch`) | |
-
-**No incluidos a propósito** (pertenecen a otros releases): confirmación de registro por correo (Release 2, reutilizará el mismo
-Adapter), **Strategy** (validar identificación / código, Release 3), Command, Facade y Decorator (opcionales en el documento).
-
-## Decisiones de este release
-
-- **Sin correos:** no hay confirmación por enlace (Release 2). El estudiante queda **verificado al registrarse**, porque su correo
-  pertenece a un dominio institucional (configurable en `promou.seguridad.dominios-institucionales`), y su identificación se genera
-  en ese momento. El establecimiento queda pendiente hasta que el administrador lo apruebe.
-- **Notificación de la revisión (HU 1.2.3 esc. 6):** al aprobar o rechazar se envía un aviso al correo del representante
-  (Adapter); además, el representante ve el resultado al iniciar sesión (pendiente / rechazada / aprobada).
-- **Identificación digital (HU 1.4.1):** el QR es un código QR real (librería `qrcode`) con el identificador único.
-- **Código del descuento:** se guarda al publicar, pero el estudiante lo verá con "Copiar código" (Release 2).
-- **Categorías:** se eligen al publicar; el filtro del directorio es del Release 2.
-- **Esquema:** la migración `V1` solo crea las tablas de este release; los siguientes agregan las suyas (reseñas, guardados, enlaces).
-- Los mensajes de conflicto del registro de establecimientos son genéricos por diseño (HU 1.2.1 esc. 3 y 5).
-
 ## Verificación
 
 Backend: `mvn test` con **27 pruebas unitarias** (dominio, contraseñas, bloqueo, identificación, notificación). Arranque real
