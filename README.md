@@ -27,6 +27,18 @@ Requisitos: JDK 21, Node.js 20+, PostgreSQL 16 y Maven (o `backend/run-local.cmd
 Correo (HU 1.2.3 esc. 6): sin `SMTP_HOST` el aviso al representante se escribe en el log del backend
 ("Notificación simulada"). Con `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` y `CORREO_REMITENTE` se envía por SMTP.
 
+## Despliegue (producción)
+
+| Parte | Plataforma | URL |
+|---|---|---|
+| Frontend | Vercel (Root Directory `frontend`, `vercel.json`) | https://plat-descuentos.vercel.app |
+| Backend + PostgreSQL | Render, Blueprint `render.yaml` | https://promou-backend.onrender.com |
+
+- Vercel: variable `VITE_API_URL=https://promou-backend.onrender.com`.
+- Render: `ADMIN_CONTRASENA` (administrador `admin@plataforma.com`) y `CORS_ORIGENES=https://plat-descuentos.vercel.app`.
+- Cada push a `main` redespliega ambos automáticamente.
+- Plan gratuito de Render: el backend se suspende tras 15 min sin uso (la primera petición tarda ~50 s) y la base gratuita vence a los 30 días.
+
 ## Cómo correrlo con Docker
 
 Con Docker Desktop abierto, desde esta carpeta:
