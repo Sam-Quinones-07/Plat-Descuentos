@@ -64,7 +64,8 @@ public class DescuentoBuilder {
         return this;
     }
 
-    public Descuento build() {
+    /** construir(): Descuento, como en el diagrama de la sección 5.2. */
+    public Descuento construir() {
         return new Descuento(establecimiento, categoria, beneficio, condiciones, fechaInicio, fechaFin, codigo,
                 ubicacion, sitioWeb);
     }

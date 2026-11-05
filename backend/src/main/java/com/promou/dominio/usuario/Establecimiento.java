@@ -92,7 +92,10 @@ public class Establecimiento extends Usuario {
         return nit.replace("-", "").trim();
     }
 
-    /** GRASP Creator: el establecimiento contiene sus descuentos, por eso es quien los crea. */
+    /**
+     * GRASP Creator: el establecimiento contiene sus descuentos, por eso es quien los crea.
+     * Usa el Builder (sección 5.2 del documento: Establecimiento --usa--> DescuentoBuilder --crea--> Descuento).
+     */
     public Descuento crearDescuento(DescuentoDatos datos, Categoria categoria) {
         return new DescuentoBuilder()
                 .paraEstablecimiento(this)
@@ -103,7 +106,7 @@ public class Establecimiento extends Usuario {
                 .conCategoria(categoria)
                 .conSitioWeb(datos.website())
                 .conCodigo(datos.code())
-                .build();
+                .construir();
     }
 
     public void agregarDescuento(Descuento descuento) {
