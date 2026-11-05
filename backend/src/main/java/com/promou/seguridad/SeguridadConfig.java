@@ -51,8 +51,9 @@ public class SeguridadConfig {
         return http.build();
     }
 
+    /** El nombre del bean debe ser "corsConfigurationSource": es el que busca .cors(withDefaults()). */
     @Bean
-    CorsConfigurationSource cors(PromoUProperties props) {
+    CorsConfigurationSource corsConfigurationSource(PromoUProperties props) {
         CorsConfiguration c = new CorsConfiguration();
         // Patrones: permite, por ejemplo, https://promou*.vercel.app (producción y vistas previas de Vercel)
         c.setAllowedOriginPatterns(props.cors().origenes().stream().map(String::trim).toList());
