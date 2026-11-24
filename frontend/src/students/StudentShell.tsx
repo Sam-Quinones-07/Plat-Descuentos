@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import { BrandMark, Button, Icon } from "../components";
+import { BrandMark, Button, Icon, LegalFooter } from "../components";
 
 export type StudentShellProps = {
   studentName: string;
@@ -14,7 +14,7 @@ export function StudentShell({
   onLogout,
 }: StudentShellProps & {
   children: ReactNode;
-  active?: "discounts" | "profile";
+  active?: "discounts" | "saved" | "profile";
 }) {
   const initials = studentName
     .split(" ")
@@ -67,6 +67,16 @@ export function StudentShell({
           </button>
           <button
             type="button"
+            className={`admin-nav__item ${active === "saved" ? "admin-nav__item--active" : ""}`}
+            onClick={() => {
+              window.location.hash = "#guardados";
+            }}
+          >
+            <Icon name="bookmark" />
+            <span>Guardados</span>
+          </button>
+          <button
+            type="button"
             className={`admin-nav__item ${active === "profile" ? "admin-nav__item--active" : ""}`}
             onClick={() => {
               window.location.hash = "#mi-perfil";
@@ -76,7 +86,10 @@ export function StudentShell({
             <span>Mi identificación</span>
           </button>
         </aside>
-        <main className="admin-main">{children}</main>
+        <main className="admin-main">
+          {children}
+          <LegalFooter />
+        </main>
       </div>
     </div>
   );

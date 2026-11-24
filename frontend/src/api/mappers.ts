@@ -20,6 +20,8 @@ export function toDiscount(discount: ApiDiscount): Discount {
     website: discount.website ?? "",
     category: discount.category as DiscountCategory,
     status: discount.status,
+    available: discount.available,
+    saved: Boolean(discount.saved),
   };
 }
 

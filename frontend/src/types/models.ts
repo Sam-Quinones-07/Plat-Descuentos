@@ -13,8 +13,19 @@ export type View =
   | "student-discounts"
   | "student-discount-detail"
   | "student-profile"
+  | "student-saved"
+  | "business-discount-edit"
+  | "business-validate"
+  | "business-account"
   | "admin"
-  | "admin-request";
+  | "admin-request"
+  | "admin-reviews"
+  | "confirm-email"
+  | "resend-confirmation"
+  | "forgot-password"
+  | "reset-password"
+  | "terms"
+  | "privacy";
 
 export type Account = {
   firstName: string;
@@ -60,6 +71,8 @@ export type Discount = {
   website: string;
   category: DiscountCategory;
   status: "active" | "inactive";
+  available: boolean;
+  saved: boolean;
 };
 
 export type IconName =
@@ -76,7 +89,11 @@ export type IconName =
   | "shield"
   | "spinner"
   | "user"
-  | "warning";
+  | "warning"
+  | "copy"
+  | "bookmark"
+  | "star"
+  | "key";
 
 export type BusinessFormData = {
   tradeName: string;

@@ -1,6 +1,6 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { api } from "../api";
-import { Alert, AuthLayout, Button, Icon, TextField } from "../components";
+import { Alert, AuthLayout, Button, Icon, TermsCheckbox, TextField } from "../components";
 import { type BusinessFormData, emptyBusinessForm, passwordRules } from "../types";
 import { toApiError } from "../api/mappers";
 
@@ -17,6 +17,7 @@ export function BusinessRegister({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const ruleResults = useMemo(
     () =>
       passwordRules.map((rule) => ({
@@ -66,6 +67,8 @@ export function BusinessRegister({
       nextErrors.password = "La contraseña aún no cumple todos los requisitos.";
     if (values.confirmation && values.password !== values.confirmation)
       nextErrors.confirmation = "Las contraseñas no coinciden.";
+    if (!acceptTerms)
+      nextErrors.acceptTerms = "Debes aceptar los términos y la política de tratamiento de datos.";
 
     setErrors(nextErrors);
     setFormError("");
@@ -78,7 +81,7 @@ export function BusinessRegister({
         businessEmail: values.businessEmail.trim(),
         email: values.email.trim(),
       };
-      await api.registerBusiness(clean);
+      await api.registerBusiness({ ...clean, acceptTerms });
       onSubmitted(clean);
     } catch (error) {
       // Los conflictos (NIT/correo ya registrados) llegan con mensaje genérico por diseño (HU 1.2.1 esc. 3 y 5).
@@ -251,6 +254,14 @@ export function BusinessRegister({
           </div>
         </div>
 
+        <TermsCheckbox
+          checked={acceptTerms}
+          onChange={(value) => {
+            setAcceptTerms(value);
+            setErrors((current) => ({ ...current, acceptTerms: "" }));
+          }}
+          error={errors.acceptTerms}
+        />
         <div className="business-form__footer">
           <Button type="submit" disabled={loading}>
             {loading ? (

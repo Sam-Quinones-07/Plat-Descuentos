@@ -10,6 +10,7 @@
   --surface: #ffffff;
   --line: #dfe3ed;
   --line-strong: #c8cedc;
+  --border: var(--line);
   --success: #158463;
   --success-soft: #eaf8f3;
   --danger: #c33f54;
@@ -1587,13 +1588,20 @@ button {
 
 .student-detail__heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-5);
+  gap: var(--space-3) var(--space-5);
 }
 
 .student-detail__heading > div {
+  flex: 1 1 14rem;
   min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.student-detail__heading > .student-discount-card__controls {
+  flex: none;
 }
 
 .student-detail__section {
@@ -2709,4 +2717,169 @@ button {
 .request-tab--active .tab-count {
   color: var(--primary);
   background: var(--primary-soft);
+}
+
+/* ---------- Release 2 ---------- */
+
+.terms-check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.terms-check input {
+  flex: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: 0.15rem;
+  accent-color: var(--primary);
+}
+
+.terms-check a,
+.login-links a,
+.legal-footer a {
+  color: var(--primary);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.terms-check a:hover,
+.login-links a:hover,
+.legal-footer a:hover {
+  text-decoration: underline;
+}
+
+.login-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: calc(var(--space-2) * -1);
+  font-size: 0.8rem;
+}
+
+.waking-banner {
+  position: fixed;
+  z-index: 60;
+  left: 50%;
+  bottom: var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: min(calc(100% - 2rem), 34rem);
+  padding: var(--space-3) var(--space-5);
+  border: 1px solid var(--warning);
+  border-radius: var(--radius-medium);
+  color: var(--warning);
+  background: var(--warning-soft);
+  box-shadow: var(--shadow);
+  box-sizing: border-box;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transform: translateX(-50%);
+}
+
+.waking-banner svg {
+  flex: none;
+}
+
+.legal-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2) var(--space-5);
+  margin-top: var(--space-12);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+}
+
+.legal-page {
+  min-height: 100vh;
+  padding: var(--space-6) var(--space-4);
+  background: var(--canvas);
+  box-sizing: border-box;
+}
+
+.legal-page__header,
+.legal-page__body {
+  max-width: 46rem;
+  margin: 0 auto;
+}
+
+.legal-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+}
+
+.legal-page__body {
+  padding: var(--space-8);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-large);
+  background: var(--surface);
+  line-height: 1.65;
+  font-size: 0.9rem;
+}
+
+.legal-page__body h1 {
+  margin: var(--space-2) 0 var(--space-4);
+  font-size: 1.6rem;
+}
+
+.legal-page__body h2 {
+  margin: var(--space-6) 0 var(--space-2);
+  font-size: 1.05rem;
+}
+
+.legal-page__body p,
+.legal-page__body li {
+  color: var(--ink-soft);
+}
+
+.legal-page__version {
+  margin-top: var(--space-8);
+  font-size: 0.75rem;
+}
+
+.student-discount-card__controls {
+  position: relative;
+  z-index: 2;
+}
+
+.save-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-8);
+}
+
+.saved-item {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+}
+
+.saved-item > .status-badge {
+  justify-self: start;
+}
+
+.validation-result {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.security-card .button svg {
+  margin-right: 0.25rem;
 }

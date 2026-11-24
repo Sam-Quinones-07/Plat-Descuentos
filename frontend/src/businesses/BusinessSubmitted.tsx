@@ -16,8 +16,9 @@ export function BusinessSubmitted({ goToLogin }: { goToLogin: () => void }) {
         <div>
           <p className="status-panel__title">Revisión pendiente</p>
           <p className="status-panel__description">
-            La solicitud de afiliación fue registrada correctamente. Podrás
-            iniciar sesión cuando sea aprobada.
+            La solicitud de afiliación fue registrada correctamente. Te enviamos un
+            correo con un enlace para confirmar tu dirección; podrás iniciar sesión cuando confirmes el correo y el
+            administrador apruebe la solicitud.
           </p>
         </div>
       </div>

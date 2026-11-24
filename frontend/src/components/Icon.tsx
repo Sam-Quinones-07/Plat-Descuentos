@@ -13,6 +13,36 @@ export function Icon({ name }: { name: IconName }) {
     "aria-hidden": true,
   };
 
+  if (name === "copy") {
+    return (
+      <svg {...common}>
+        <rect x="9" y="9" width="11" height="11" rx="2" />
+        <path d="M5 15V6a2 2 0 0 1 2-2h9" />
+      </svg>
+    );
+  }
+  if (name === "bookmark") {
+    return (
+      <svg {...common}>
+        <path d="M6 4h12v16l-6-4-6 4V4Z" />
+      </svg>
+    );
+  }
+  if (name === "star") {
+    return (
+      <svg {...common}>
+        <path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9L12 3.5Z" />
+      </svg>
+    );
+  }
+  if (name === "key") {
+    return (
+      <svg {...common}>
+        <circle cx="8" cy="15" r="4" />
+        <path d="m10.8 12.2 8.7-8.7M16 7l2.5 2.5M14 9l2 2" />
+      </svg>
+    );
+  }
   if (name === "check") {
     return (
       <svg {...common}>

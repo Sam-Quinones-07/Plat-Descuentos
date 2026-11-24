@@ -20,11 +20,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * HU 2.1.1 Publicar descuento. GRASP Controller del caso de uso: coordina, no decide.
+ * HU 2.1.1 (publicar), 2.1.2 (editar) y 2.1.3 (desactivar). GRASP Controller del caso de uso: coordina, no decide.
  * - Creator: {@link Establecimiento#crearDescuento} crea el descuento (con Builder).
- * - Information Expert: {@link Descuento#validar()} valida sus propios datos.
+ * - Information Expert: {@link Descuento} valida sus datos, se edita y se desactiva a sí mismo.
  * - Pure Fabrication / Indirection: {@link DescuentoRepository} lo persiste.
- * El controlador REST solo traduce HTTP; no contiene reglas (Low Coupling, High Cohesion).
+ * Editar y desactivar solo encuentran descuentos propios: un id ajeno responde como inexistente (control de acceso).
  */
 @Service
 public class GestionDescuentosService {
@@ -53,11 +53,34 @@ public class GestionDescuentosService {
         return respuesta(descuento);
     }
 
-    /** Tablero "Mis descuentos": muestra lo publicado (edición y desactivación llegan en Release 2). */
     @Transactional(readOnly = true)
     public List<DescuentoResponse> listarPropios(UUID establecimientoId) {
         cargarOperativo(establecimientoId);
         return descuentos.delEstablecimiento(establecimientoId).stream().map(this::respuesta).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public DescuentoResponse obtenerPropio(UUID establecimientoId, UUID descuentoId) {
+        cargarOperativo(establecimientoId);
+        return respuesta(cargarPropio(establecimientoId, descuentoId));
+    }
+
+    /** HU 2.1.2: si los datos no son válidos no se guarda nada (esc. 2 y 3). */
+    @Transactional
+    public DescuentoResponse editar(UUID establecimientoId, UUID descuentoId, DescuentoRequest r) {
+        cargarOperativo(establecimientoId);
+        Descuento descuento = cargarPropio(establecimientoId, descuentoId);
+        descuento.editar(aDatos(r), resolverCategoria(r.category()), reloj.instant());
+        return respuesta(descuento);
+    }
+
+    /** HU 2.1.3: la confirmación previa (esc. 2 y 3) la pide el front; aquí se aplica la regla del esc. 4. */
+    @Transactional
+    public DescuentoResponse desactivar(UUID establecimientoId, UUID descuentoId) {
+        cargarOperativo(establecimientoId);
+        Descuento descuento = cargarPropio(establecimientoId, descuentoId);
+        descuento.desactivar(reloj.instant());
+        return respuesta(descuento);
     }
 
     private Establecimiento cargarOperativo(UUID id) {
@@ -65,6 +88,11 @@ public class GestionDescuentosService {
                 () -> ReglaNegocioException.noAutenticado("NO_AUTENTICADO", "Debes iniciar sesión."));
         e.exigirOperativo();
         return e;
+    }
+
+    private Descuento cargarPropio(UUID establecimientoId, UUID descuentoId) {
+        return descuentos.buscarDelEstablecimiento(descuentoId, establecimientoId).orElseThrow(
+                () -> ReglaNegocioException.noEncontrado("DESCUENTO_NO_ENCONTRADO", "El descuento no existe."));
     }
 
     private Categoria resolverCategoria(String id) {

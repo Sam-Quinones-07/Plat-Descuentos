@@ -2,11 +2,14 @@ package com.promou.aplicacion;
 
 import com.promou.aplicacion.dto.AuthDtos.PerfilDto;
 import com.promou.aplicacion.dto.DescuentoDtos.DescuentoResponse;
+import com.promou.aplicacion.dto.DescuentoDtos.ResenaResponse;
+import com.promou.dominio.resena.Resena;
 import com.promou.dominio.descuento.Descuento;
 import com.promou.dominio.usuario.Establecimiento;
 import com.promou.dominio.usuario.Estudiante;
 import com.promou.dominio.usuario.Usuario;
 import java.time.LocalDate;
+import java.util.UUID;
 
 /** Entidad -> DTO. Se invoca siempre dentro de la transacción del servicio (hay relaciones perezosas). */
 public final class Mapeos {
@@ -26,11 +29,16 @@ public final class Mapeos {
         return new PerfilDto(rol, u.getCorreo(), u.getNombreVisible(), null, null, null, null);
     }
 
-    /** El código solo lo ve el establecimiento dueño; el estudiante lo verá con la HU 2.2.5 (Release 2). */
+    /** El dueño ve siempre su código; el estudiante solo cuando se puede copiar (HU 2.2.5 esc. 2 y 4). */
     public static DescuentoResponse descuento(Descuento d, LocalDate hoy, boolean esDueno) {
+        String codigo = esDueno ? d.getCodigo() : d.codigoCopiable(hoy).orElse(null);
         return new DescuentoResponse(d.getId(), d.getEstablecimiento().getNombreComercial(), d.getBeneficio(),
-                d.getCondiciones(), d.getFechaInicio(), d.getFechaFin(), esDueno ? d.getCodigo() : null,
-                d.getUbicacion(), d.getSitioWeb(), d.getCategoria().getId(), d.isActivo() ? "active" : "inactive",
-                d.estaDisponible(hoy));
+                d.getCondiciones(), d.getFechaInicio(), d.getFechaFin(), codigo, d.getUbicacion(), d.getSitioWeb(),
+                d.getCategoria().getId(), d.isActivo() ? "active" : "inactive", d.estaDisponible(hoy), null);
+    }
+
+    public static ResenaResponse resena(Resena r, UUID estudianteActual) {
+        return new ResenaResponse(r.getId(), r.getEstudiante().getNombreCorto(), r.getTexto(), r.getPublicadaEn(),
+                estudianteActual != null && estudianteActual.equals(r.getEstudiante().getId()) ? Boolean.TRUE : null);
     }
 }

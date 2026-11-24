@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -138,6 +139,47 @@ public class Descuento {
             throw ReglaNegocioException.validacion("DATOS_INVALIDOS",
                     "Revisa la información del descuento.", errores);
         }
+    }
+
+    /**
+     * HU 2.1.2: aplica los cambios solo si el descuento editado es válido (esc. 2 y 3); si no, conserva los datos
+     * anteriores. El candidato se arma con el mismo Builder de la publicación y se valida igual.
+     */
+    public void editar(DescuentoDatos datos, Categoria nuevaCategoria, Instant ahora) {
+        Descuento candidato = new DescuentoBuilder()
+                .paraEstablecimiento(establecimiento)
+                .conBeneficio(datos.benefit())
+                .conCondiciones(datos.conditions())
+                .conVigencia(datos.startDate(), datos.endDate())
+                .conUbicacion(datos.location())
+                .conCategoria(nuevaCategoria)
+                .conSitioWeb(datos.website())
+                .conCodigo(datos.code())
+                .construir();
+        candidato.validar();
+        this.beneficio = candidato.beneficio;
+        this.condiciones = candidato.condiciones;
+        this.fechaInicio = candidato.fechaInicio;
+        this.fechaFin = candidato.fechaFin;
+        this.ubicacion = candidato.ubicacion;
+        this.categoria = candidato.categoria;
+        this.sitioWeb = candidato.sitioWeb;
+        this.codigo = candidato.codigo;
+        registrarFechas(ahora);
+    }
+
+    /** HU 2.1.3: deja de estar disponible para los estudiantes. Esc. 4: no se desactiva dos veces. */
+    public void desactivar(Instant ahora) {
+        if (!activo) {
+            throw ReglaNegocioException.conflicto("DESCUENTO_YA_DESACTIVADO", "El descuento ya se encuentra desactivado.");
+        }
+        activo = false;
+        registrarFechas(ahora);
+    }
+
+    /** HU 2.2.5: solo hay código para copiar si el descuento lo tiene y sigue disponible (esc. 2 y 4). */
+    public Optional<String> codigoCopiable(LocalDate hoy) {
+        return codigo != null && estaDisponible(hoy) ? Optional.of(codigo) : Optional.empty();
     }
 
     /** true si no hay fechas incompletas y fin no es anterior a inicio. */

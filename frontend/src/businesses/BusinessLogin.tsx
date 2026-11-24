@@ -27,6 +27,7 @@ export function BusinessLogin({
     sessionExpired ? "warning" : "error",
   );
   const [loading, setLoading] = useState(false);
+  const [unconfirmed, setUnconfirmed] = useState(false);
 
   useEffect(() => {
     if (sessionExpired) {
@@ -50,6 +51,7 @@ export function BusinessLogin({
     } catch (error) {
       // Credenciales incorrectas -> error; correo sin confirmar, afiliación pendiente/rechazada o bloqueo -> aviso.
       const apiError = toApiError(error);
+      setUnconfirmed(apiError.code === "CORREO_NO_CONFIRMADO");
       setTone(apiError.status === 403 || apiError.status === 423 ? "warning" : "error");
       setMessage(apiError.message);
     } finally {
@@ -105,6 +107,10 @@ export function BusinessLogin({
             </button>
           }
         />
+        <div className="login-links">
+          <a href="#recuperar-contrasena">¿Olvidaste tu contraseña?</a>
+          {unconfirmed && <a href="#reenviar-confirmacion">Reenviar enlace de confirmación</a>}
+        </div>
         <Button type="submit" disabled={loading}>
           {loading ? (
             <>

@@ -7,6 +7,7 @@ export function TextAreaField({
   onChange,
   error,
   placeholder,
+  autoFocus,
 }: {
   id: string;
   label: string;
@@ -14,6 +15,7 @@ export function TextAreaField({
   onChange: (value: string) => void;
   error?: string;
   placeholder: string;
+  autoFocus?: boolean;
 }) {
   return (
     <div className="field">
@@ -24,6 +26,7 @@ export function TextAreaField({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
+          autoFocus={autoFocus}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? `${id}-error` : undefined}
         />

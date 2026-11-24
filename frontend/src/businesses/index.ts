@@ -4,3 +4,4 @@ export * from "./BusinessShell";
 export * from "./BusinessSubmitted";
 export * from "./DiscountForm";
 export * from "./DiscountsDashboard";
+export * from "./ValidateCredential";

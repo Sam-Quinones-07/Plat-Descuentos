@@ -25,6 +25,7 @@ export function Login({
     notice ? noticeTone : "error",
   );
   const [loading, setLoading] = useState(false);
+  const [unconfirmed, setUnconfirmed] = useState(false);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -40,7 +41,8 @@ export function Login({
       onSuccess(await api.login(email.trim(), password));
     } catch (error) {
       const apiError = toApiError(error);
-      setTone(apiError.code === "CUENTA_BLOQUEADA" ? "warning" : "error");
+      setUnconfirmed(apiError.code === "CORREO_NO_CONFIRMADO");
+      setTone(apiError.code === "CUENTA_BLOQUEADA" || apiError.code === "CORREO_NO_CONFIRMADO" ? "warning" : "error");
       setMessage(apiError.message);
     } finally {
       setLoading(false);
@@ -94,6 +96,10 @@ export function Login({
             </button>
           }
         />
+        <div className="login-links">
+          <a href="#recuperar-contrasena">¿Olvidaste tu contraseña?</a>
+          {unconfirmed && <a href="#reenviar-confirmacion">Reenviar enlace de confirmación</a>}
+        </div>
         <Button type="submit" disabled={loading}>
           {loading ? (
             <>

@@ -1,6 +1,7 @@
 package com.promou.config;
 
 import com.promou.comun.DominioInstitucional;
+import com.promou.comun.LimitadorPeticiones;
 import java.time.Clock;
 import java.time.ZoneId;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +21,12 @@ public class AppConfig {
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(12);
+    }
+
+    /** Máximo de correos con enlaces por destinatario en la ventana (deuda técnica 6, riesgo de envío masivo). */
+    @Bean
+    LimitadorPeticiones limiteCorreos(PromoUProperties props) {
+        return new LimitadorPeticiones(props.seguridad().correosPorVentana(), props.seguridad().ventanaCorreos());
     }
 
     @Bean

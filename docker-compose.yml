@@ -1,4 +1,4 @@
-name: promou-r1          # proyecto separado: no comparte base de datos con la versión completa
+name: promou
 
 services:
   db:
@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: promou
       POSTGRES_PASSWORD: promou
     volumes:
-      - promou-r1-data:/var/lib/postgresql/data
+      - promou-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U promou -d promou"]
       interval: 5s
@@ -25,7 +25,7 @@ services:
       DB_URL: jdbc:postgresql://db:5432/promou
       DB_USER: promou
       DB_PASSWORD: promou
-      CORS_ORIGENES: http://localhost:8443
+      FRONT_URL: http://localhost:8443         # enlaces de los correos (sin BREVO_API_KEY quedan en el log)
     ports:
       - "8080:8080"                           # opcional: para probar la API directamente
 
@@ -37,4 +37,4 @@ services:
       - "8443:80"
 
 volumes:
-  promou-r1-data:
+  promou-data:

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { api, formatInstant, type ApiCredential } from "../api";
 import { type Account } from "../types";
-import { Alert, Button, Icon } from "../components";
+import { Alert, Button, ChangePasswordCard, Icon } from "../components";
 import { DigitalQr } from "./DigitalQr";
 import { StudentShell, type StudentShellProps } from "./StudentShell";
 import { toApiError } from "../api/mappers";
 
-/** HU 1.4.1 Generar identificación digital y HU 1.1.4 Cerrar sesión. (Cambiar contraseña es de Release 3.) */
+/** HU 1.4.1 Generar identificación digital, HU 1.3.1 Cambiar contraseña y HU 1.1.4 Cerrar sesión. */
 export function StudentProfile({
   account,
   shell,
@@ -87,6 +87,8 @@ export function StudentProfile({
             </div>
           </section>
         )}
+
+        <ChangePasswordCard />
 
         <section className="security-card">
           <div className="security-card__heading">

@@ -45,8 +45,12 @@ public class AutenticacionService {
      * noRollbackFor: los intentos fallidos deben quedar guardados aunque el login termine en excepción.
      * Los mensajes de credenciales son genéricos (no dicen si falló el correo o la contraseña).
      */
+    /** Resultado interno: el token va a la cookie y la respuesta al cuerpo. */
+    public record SesionIniciada(String token, LoginResponse respuesta) {
+    }
+
     @Transactional(noRollbackFor = ReglaNegocioException.class)
-    public LoginResponse iniciarSesion(String email, String contrasena, Set<Rol> rolesPermitidos) {
+    public SesionIniciada iniciarSesion(String email, String contrasena, Set<Rol> rolesPermitidos) {
         String correo = Texto.normalizarCorreo(email);
         if (intentos.estaBloqueado(correo)) {
             throw ReglaNegocioException.bloqueado("CUENTA_BLOQUEADA", MSG_BLOQUEO);
@@ -62,7 +66,8 @@ public class AutenticacionService {
         intentos.reiniciar(correo);
         usuario.verificarPuedeIniciarSesion(); // correo confirmado y, si aplica, afiliación aprobada
         String token = sesiones.crear(usuario);
-        return new LoginResponse(token, props.seguridad().inactividadSesion().toSeconds(), Mapeos.perfil(usuario));
+        return new SesionIniciada(token,
+                new LoginResponse(props.seguridad().inactividadSesion().toSeconds(), Mapeos.perfil(usuario)));
     }
 
     @Transactional(readOnly = true)

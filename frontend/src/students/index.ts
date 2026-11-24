@@ -4,3 +4,4 @@ export * from "./StudentDiscountDetail";
 export * from "./StudentDiscounts";
 export * from "./StudentProfile";
 export * from "./StudentShell";
+export * from "./StudentSaved";

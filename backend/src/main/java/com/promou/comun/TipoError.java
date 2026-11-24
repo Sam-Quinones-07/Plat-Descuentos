@@ -8,7 +8,8 @@ public enum TipoError {
     NO_ENCONTRADO(404),
     CONFLICTO(409),
     NO_DISPONIBLE(410),
-    BLOQUEADO(423);
+    BLOQUEADO(423),
+    DEMASIADAS_SOLICITUDES(429);
 
     private final int http;
 

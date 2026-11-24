@@ -11,7 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-/** Lee "Authorization: Bearer <token>", valida la sesión en BD y expone el principal. */
+/** Lee la cookie de sesión, valida la sesión en BD y expone el principal. */
 public class SesionFilter extends OncePerRequestFilter {
 
     public static final String ATRIBUTO_SESION_EXPIRADA = "promou.sesionExpirada";
@@ -25,21 +25,18 @@ public class SesionFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        String cabecera = request.getHeader("Authorization");
-        if (cabecera != null && cabecera.regionMatches(true, 0, "Bearer ", 0, 7)) {
-            String token = cabecera.substring(7).trim();
-            if (!token.isEmpty()) {
-                SesionService.ResultadoSesion r = sesiones.autenticar(token);
-                switch (r.estado()) {
-                    case ACTIVA -> {
-                        UsuarioAutenticado p = r.principal();
-                        var auth = new UsernamePasswordAuthenticationToken(p, null,
-                                List.of(new SimpleGrantedAuthority(p.rol().authority())));
-                        SecurityContextHolder.getContext().setAuthentication(auth);
-                    }
-                    case EXPIRADA -> request.setAttribute(ATRIBUTO_SESION_EXPIRADA, Boolean.TRUE);
-                    case INEXISTENTE -> { }
+        String token = CookieSesion.leer(request);
+        if (token != null) {
+            SesionService.ResultadoSesion r = sesiones.autenticar(token);
+            switch (r.estado()) {
+                case ACTIVA -> {
+                    UsuarioAutenticado p = r.principal();
+                    var auth = new UsernamePasswordAuthenticationToken(p, null,
+                            List.of(new SimpleGrantedAuthority(p.rol().authority())));
+                    SecurityContextHolder.getContext().setAuthentication(auth);
                 }
+                case EXPIRADA -> request.setAttribute(ATRIBUTO_SESION_EXPIRADA, Boolean.TRUE);
+                case INEXISTENTE -> { }
             }
         }
         chain.doFilter(request, response);

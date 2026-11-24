@@ -55,6 +55,10 @@ public class ReglaNegocioException extends RuntimeException {
         return new ReglaNegocioException(TipoError.BLOQUEADO, codigo, mensaje);
     }
 
+    public static ReglaNegocioException demasiadas(String codigo, String mensaje) {
+        return new ReglaNegocioException(TipoError.DEMASIADAS_SOLICITUDES, codigo, mensaje);
+    }
+
     public TipoError getTipo() {
         return tipo;
     }

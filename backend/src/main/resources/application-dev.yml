@@ -2,3 +2,5 @@
 promou:
   admin:
     contrasena: ${ADMIN_CONTRASENA:Descuentos@04}   # mismo administrador que usa el front de prueba
+  seguridad:
+    cookie-segura: false                            # http://localhost no es HTTPS

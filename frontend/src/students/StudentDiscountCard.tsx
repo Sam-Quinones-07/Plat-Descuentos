@@ -1,8 +1,16 @@
 import { CategoryIcon, Icon } from "../components";
 import { type Discount, formatDiscountDate, getDiscountCategory } from "../types";
 
-/** Información resumida de un descuento en el directorio (HU 2.2.1 esc. 1). Toda la tarjeta abre el detalle. */
-export function StudentDiscountCard({ discount, onSelect }: { discount: Discount; onSelect: () => void }) {
+/** Información resumida de un descuento (HU 2.2.1 esc. 1). Toda la tarjeta abre el detalle; el marcador guarda (HU 2.2.4). */
+export function StudentDiscountCard({
+  discount,
+  onSelect,
+  onToggleSave,
+}: {
+  discount: Discount;
+  onSelect: () => void;
+  onToggleSave?: () => void;
+}) {
   const category = getDiscountCategory(discount.category);
   if (!category) return null;
 
@@ -16,6 +24,20 @@ export function StudentDiscountCard({ discount, onSelect }: { discount: Discount
           <CategoryIcon name={category.icon} />
           {category.name}
         </span>
+        {onToggleSave && (
+          <div className="student-discount-card__controls">
+            <button
+              type="button"
+              className={`save-button ${discount.saved ? "save-button--active" : ""}`}
+              onClick={onToggleSave}
+              aria-pressed={discount.saved}
+              aria-label={discount.saved ? "Quitar de guardados" : "Guardar descuento"}
+              title={discount.saved ? "Quitar de guardados" : "Guardar descuento"}
+            >
+              <Icon name="bookmark" />
+            </button>
+          </div>
+        )}
       </div>
       <span className="student-discount-card__business">{discount.businessName}</span>
       <p className="discount-card__benefit">{discount.benefit}</p>

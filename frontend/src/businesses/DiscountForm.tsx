@@ -4,29 +4,33 @@ import { BusinessShell } from "./BusinessShell";
 import { type Discount, type DiscountCategory, discountCategories } from "../types";
 import { toApiError } from "../api/mappers";
 
+type DiscountValues = Omit<Discount, "id" | "status" | "businessName" | "saved" | "available">;
+
+/** HU 2.1.1 Publicar y HU 2.1.2 Editar (con initial). Cancelar no guarda nada (HU 2.1.2 esc. 4). */
 export function DiscountForm({
   businessName,
+  initial,
   onSave,
   onCancel,
   onLogout,
   onNew,
 }: {
   businessName: string;
-  onSave: (
-    values: Omit<Discount, "id" | "status" | "businessName" | "saved">,
-  ) => Promise<void>;
+  initial?: DiscountValues;
+  onSave: (values: DiscountValues) => Promise<void>;
   onCancel: () => void;
   onLogout: () => void;
   onNew: () => void;
 }) {
-  const [benefit, setBenefit] = useState("");
-  const [conditions, setConditions] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [code, setCode] = useState("");
-  const [location, setLocation] = useState("");
-  const [website, setWebsite] = useState("");
-  const [category, setCategory] = useState<DiscountCategory | "">("");
+  const editing = Boolean(initial);
+  const [benefit, setBenefit] = useState(initial?.benefit ?? "");
+  const [conditions, setConditions] = useState(initial?.conditions ?? "");
+  const [startDate, setStartDate] = useState(initial?.startDate ?? "");
+  const [endDate, setEndDate] = useState(initial?.endDate ?? "");
+  const [code, setCode] = useState(initial?.code ?? "");
+  const [location, setLocation] = useState(initial?.location ?? "");
+  const [website, setWebsite] = useState(initial?.website ?? "");
+  const [category, setCategory] = useState<DiscountCategory | "">(initial?.category ?? "");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -79,17 +83,19 @@ export function DiscountForm({
     <BusinessShell
       businessName={businessName}
       onLogout={onLogout}
-      active="new"
+      active={editing ? "discounts" : "new"}
       onNew={onNew}
     >
       <button type="button" className="back-button" onClick={onCancel}>
         <span aria-hidden="true">←</span> Volver a mis descuentos
       </button>
       <div className="admin-page-heading">
-        <span className="eyebrow">NUEVO DESCUENTO</span>
-        <p className="admin-page-title">Publica un descuento</p>
+        <span className="eyebrow">{editing ? "EDITAR DESCUENTO" : "NUEVO DESCUENTO"}</span>
+        <p className="admin-page-title">{editing ? "Edita tu descuento" : "Publica un descuento"}</p>
         <p className="page-description">
-          Completa la información del beneficio para publicarlo.
+          {editing
+            ? "Actualiza las condiciones o la vigencia. Los estudiantes verán los cambios al guardar."
+            : "Completa la información del beneficio para publicarlo."}
         </p>
       </div>
       <form className="discount-form detail-card" onSubmit={submit} noValidate>
@@ -202,13 +208,18 @@ export function DiscountForm({
           autoComplete="url"
         />
         <div className="discount-form__actions">
+          {editing && (
+            <Button variant="secondary" onClick={onCancel}>
+              Cancelar
+            </Button>
+          )}
           <Button type="submit" disabled={loading}>
             {loading ? (
               <>
                 <Icon name="spinner" /> Guardando…
               </>
             ) : (
-              "Publicar descuento"
+              editing ? "Guardar cambios" : "Publicar descuento"
             )}
           </Button>
         </div>

@@ -1,12 +1,14 @@
 import { type ReactNode } from "react";
-import { BrandMark, Button, Icon } from "../components";
+import { BrandMark, Button, Icon, LegalFooter } from "../components";
 
 export function AdminShell({
   children,
   onLogout,
+  active = "requests",
 }: {
   children: ReactNode;
   onLogout: () => void;
+  active?: "requests" | "reviews";
 }) {
   return (
     <div className="admin-shell">
@@ -25,12 +27,31 @@ export function AdminShell({
       <div className="admin-layout">
         <aside className="admin-nav" aria-label="Navegación de administración">
           <span className="admin-nav__label">GESTIÓN</span>
-          <div className="admin-nav__item admin-nav__item--active">
+          <button
+            type="button"
+            className={`admin-nav__item ${active === "requests" ? "admin-nav__item--active" : ""}`}
+            onClick={() => {
+              window.location.hash = "#administracion";
+            }}
+          >
             <Icon name="shield" />
             <span>Solicitudes de afiliación</span>
-          </div>
+          </button>
+          <button
+            type="button"
+            className={`admin-nav__item ${active === "reviews" ? "admin-nav__item--active" : ""}`}
+            onClick={() => {
+              window.location.hash = "#moderar-resenas";
+            }}
+          >
+            <Icon name="star" />
+            <span>Reseñas</span>
+          </button>
         </aside>
-        <main className="admin-main">{children}</main>
+        <main className="admin-main">
+          {children}
+          <LegalFooter />
+        </main>
       </div>
     </div>
   );

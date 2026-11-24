@@ -1,5 +1,6 @@
 # Blueprint de Render: API Spring Boot (Docker) + PostgreSQL.
 # En Render: New > Blueprint > elegir este repositorio. Pedirá los valores marcados con sync: false.
+# El front (Vercel) llama a la API por su mismo dominio (rewrite de frontend/vercel.json), así que no se necesita CORS.
 databases:
   - name: promou-db
     plan: free
@@ -29,8 +30,14 @@ services:
       # Contraseña del administrador inicial (8+ caracteres, mayúscula, minúscula, número y carácter especial)
       - key: ADMIN_CONTRASENA
         sync: false
-      # URL del frontend en Vercel; admite patrones, p. ej. https://promou*.vercel.app
-      - key: CORS_ORIGENES
+      # URL pública del front: base de los enlaces de confirmación y restablecimiento que llegan por correo
+      - key: FRONT_URL
+        value: https://plat-descuentos.vercel.app
+      # Correo por API HTTPS (Render gratis bloquea SMTP). Sin clave, los enlaces se escriben en el log del servicio.
+      - key: BREVO_API_KEY
+        sync: false
+      # Remitente verificado en Brevo, p. ej. "PromoU <tu-correo@gmail.com>"
+      - key: CORREO_REMITENTE
         sync: false
       - key: JAVA_TOOL_OPTIONS
         value: -XX:MaxRAMPercentage=75 -XX:+UseSerialGC

@@ -1,6 +1,6 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { api } from "../api";
-import { Alert, AuthLayout, Button, Icon, TextField } from "../components";
+import { Alert, AuthLayout, Button, Icon, TermsCheckbox, TextField } from "../components";
 import { passwordRules } from "../types";
 import { toApiError } from "../api/mappers";
 
@@ -9,7 +9,7 @@ export function Register({
   goToLogin,
   goToBusiness,
 }: {
-  onRegistered: (data: { email: string }) => void;
+  onRegistered: (data: { email: string; message: string }) => void;
   goToLogin: () => void;
   goToBusiness: () => void;
 }) {
@@ -22,6 +22,7 @@ export function Register({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   const ruleResults = useMemo(
     () => passwordRules.map((rule) => ({ ...rule, passed: rule.test(password) })),
@@ -48,21 +49,24 @@ export function Register({
       nextErrors.password = "La contraseña aún no cumple todos los requisitos.";
     if (confirmation && password !== confirmation)
       nextErrors.confirmation = "Las contraseñas no coinciden.";
+    if (!acceptTerms)
+      nextErrors.acceptTerms = "Debes aceptar los términos y la política de tratamiento de datos.";
 
     setErrors(nextErrors);
     setFormError("");
     if (Object.keys(nextErrors).length) return;
     setLoading(true);
     try {
-      await api.registerStudent({
+      const response = await api.registerStudent({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         email: email.trim(),
         university: university.trim(),
         password,
         confirmation,
+        acceptTerms,
       });
-      onRegistered({ email: email.trim() });
+      onRegistered({ email: email.trim(), message: response.message });
     } catch (error) {
       const apiError = toApiError(error);
       if (Object.keys(apiError.fields).length) setErrors(apiError.fields);
@@ -192,6 +196,14 @@ export function Register({
           error={errors.confirmation}
           placeholder="Repite tu contraseña"
           autoComplete="new-password"
+        />
+        <TermsCheckbox
+          checked={acceptTerms}
+          onChange={(value) => {
+            setAcceptTerms(value);
+            setErrors((current) => ({ ...current, acceptTerms: "" }));
+          }}
+          error={errors.acceptTerms}
         />
         <Button type="submit" disabled={loading}>
           {loading ? (

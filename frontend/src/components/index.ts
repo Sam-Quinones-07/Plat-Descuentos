@@ -7,3 +7,4 @@ export * from "./DetailItem";
 export * from "./Icon";
 export * from "./TextAreaField";
 export * from "./TextField";
+export * from "./Shared";

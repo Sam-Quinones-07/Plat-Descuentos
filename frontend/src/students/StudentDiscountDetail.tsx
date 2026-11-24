@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 import { toApiError, toDiscount } from "../api/mappers";
-import { Button, CategoryIcon, DetailItem, Icon } from "../components";
+import { Alert, Button, CategoryIcon, DetailItem, Icon } from "../components";
 import { type Discount, formatDiscountDate, getDiscountCategory, normalizeWebsite } from "../types";
+import { DiscountReviews } from "./DiscountReviews";
 import { StudentShell, type StudentShellProps } from "./StudentShell";
 
 type State =
@@ -12,9 +13,8 @@ type State =
   | { kind: "error"; message: string };
 
 /**
- * HU 2.2.2 Consultar detalle de un descuento. Se consulta al servidor cada vez, así un descuento que se
- * desactivó o venció después de cargar el directorio se informa como no disponible (esc. 2).
- * (Guardar, copiar código y reseñas son de Releases 2 y 3.)
+ * HU 2.2.2 Consultar detalle, HU 2.2.4 Guardar, HU 2.2.5 Copiar código y HU 3.1.1 / 3.1.2 Reseñas.
+ * Se consulta al servidor cada vez: un descuento desactivado o vencido se informa como no disponible (esc. 2).
  */
 export function StudentDiscountDetail({
   discountId,
@@ -83,13 +83,68 @@ export function StudentDiscountDetail({
         </div>
       )}
 
-      {state.kind === "ready" && <DetailBody discount={state.discount} onOpenId={onOpenId} />}
+      {state.kind === "ready" && (
+        <DetailBody
+          discount={state.discount}
+          onOpenId={onOpenId}
+          onChange={(discount) => setState({ kind: "ready", discount })}
+        />
+      )}
     </StudentShell>
   );
 }
 
-function DetailBody({ discount, onOpenId }: { discount: Discount; onOpenId: () => void }) {
+function DetailBody({
+  discount,
+  onOpenId,
+  onChange,
+}: {
+  discount: Discount;
+  onOpenId: () => void;
+  onChange: (discount: Discount) => void;
+}) {
   const category = getDiscountCategory(discount.category);
+  const [saveMessage, setSaveMessage] = useState<{ tone: "success" | "error"; text: string } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [copied, setCopied] = useState("");
+
+  async function toggleSave() {
+    setSaving(true);
+    setSaveMessage(null);
+    try {
+      if (discount.saved) {
+        await api.unsaveDiscount(discount.id);
+        onChange({ ...discount, saved: false });
+        setSaveMessage({ tone: "success", text: "Quitaste el descuento de tus guardados." });
+      } else {
+        await api.saveDiscount(discount.id);
+        onChange({ ...discount, saved: true });
+        setSaveMessage({ tone: "success", text: "Descuento guardado. Lo encuentras en «Guardados»." });
+      }
+    } catch (error) {
+      const apiError = toApiError(error);
+      if (apiError.code === "DESCUENTO_YA_GUARDADO") {
+        onChange({ ...discount, saved: true });
+        setSaveMessage({ tone: "success", text: apiError.message });
+      } else if (apiError.status !== 401) {
+        setSaveMessage({ tone: "error", text: apiError.message });
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  /** HU 2.2.5 esc. 1: copia al portapapeles y avisa. */
+  async function copyCode() {
+    try {
+      await navigator.clipboard.writeText(discount.code);
+      setCopied("Código copiado al portapapeles.");
+    } catch {
+      setCopied("No se pudo copiar automáticamente. Selecciona el código y cópialo.");
+    }
+    window.setTimeout(() => setCopied(""), 4000);
+  }
+
   return (
     <div className="student-detail">
       <section className="student-detail__main">
@@ -98,13 +153,27 @@ function DetailBody({ discount, onOpenId }: { discount: Discount; onOpenId: () =
             <span className="eyebrow">{discount.businessName}</span>
             <p className="admin-page-title">{discount.benefit}</p>
           </div>
-          {category && (
-            <span className={`discount-category category-chip--${category.id}`}>
-              <CategoryIcon name={category.icon} />
-              {category.name}
-            </span>
-          )}
+          <div className="student-discount-card__controls">
+            {category && (
+              <span className={`discount-category category-chip--${category.id}`}>
+                <CategoryIcon name={category.icon} />
+                {category.name}
+              </span>
+            )}
+            <button
+              type="button"
+              className={`save-button ${discount.saved ? "save-button--active" : ""}`}
+              onClick={toggleSave}
+              disabled={saving}
+              aria-pressed={discount.saved}
+              aria-label={discount.saved ? "Quitar de guardados" : "Guardar descuento"}
+              title={discount.saved ? "Quitar de guardados" : "Guardar descuento"}
+            >
+              <Icon name="bookmark" />
+            </button>
+          </div>
         </div>
+        {saveMessage && <Alert tone={saveMessage.tone}>{saveMessage.text}</Alert>}
         <div className="student-detail__section">
           <span className="detail-item__label">CONDICIONES</span>
           <p>{discount.conditions}</p>
@@ -124,17 +193,32 @@ function DetailBody({ discount, onOpenId }: { discount: Discount; onOpenId: () =
             </a>
           </div>
         )}
+        <DiscountReviews discountId={discount.id} />
       </section>
       <aside className="code-card">
         <span className="status-badge status-badge--approved">
           <span className="status-badge__dot" />
           Disponible
         </span>
-        <p className="code-card__title">¿Cómo lo uso?</p>
-        <p className="code-card__description">
-          Acércate al comercio y presenta tu identificación digital con código QR para acceder al beneficio.
-        </p>
-        <Button onClick={onOpenId}>
+        {discount.code ? (
+          <>
+            <p className="code-card__title">Código de descuento</p>
+            <p className="code-card__value">{discount.code}</p>
+            <Button onClick={copyCode}>
+              <Icon name="copy" /> Copiar código
+            </Button>
+            {copied && <Alert tone="success">{copied}</Alert>}
+            <p className="code-card__description">Úsalo en el comercio junto con tu identificación digital.</p>
+          </>
+        ) : (
+          <>
+            <p className="code-card__title">¿Cómo lo uso?</p>
+            <p className="code-card__description">
+              Este descuento no requiere código. Acércate al comercio y presenta tu identificación digital con código QR.
+            </p>
+          </>
+        )}
+        <Button variant="secondary" onClick={onOpenId}>
           <Icon name="qr" /> Mostrar mi identificación
         </Button>
       </aside>

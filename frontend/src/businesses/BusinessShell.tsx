@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import { BrandMark, Button, Icon } from "../components";
+import { BrandMark, Button, Icon, LegalFooter } from "../components";
 
 export function BusinessShell({
   businessName,
@@ -11,7 +11,7 @@ export function BusinessShell({
   businessName: string;
   children: ReactNode;
   onLogout: () => void;
-  active?: "discounts" | "new";
+  active?: "discounts" | "new" | "validate" | "account";
   onNew?: () => void;
 }) {
   return (
@@ -48,8 +48,27 @@ export function BusinessShell({
             <span aria-hidden="true" style={{ fontSize: "1.1rem", lineHeight: 1 }}>+</span>
             <span>Publicar descuento</span>
           </button>
+          <button
+            type="button"
+            className={`admin-nav__item ${active === "validate" ? "admin-nav__item--active" : ""}`}
+            onClick={() => { window.location.hash = "#validar-identificacion"; }}
+          >
+            <Icon name="qr" />
+            <span>Validar identificación</span>
+          </button>
+          <button
+            type="button"
+            className={`admin-nav__item ${active === "account" ? "admin-nav__item--active" : ""}`}
+            onClick={() => { window.location.hash = "#mi-cuenta-establecimiento"; }}
+          >
+            <Icon name="key" />
+            <span>Seguridad</span>
+          </button>
         </aside>
-        <main className="admin-main">{children}</main>
+        <main className="admin-main">
+          {children}
+          <LegalFooter />
+        </main>
       </div>
     </div>
   );
